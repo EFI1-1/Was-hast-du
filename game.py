@@ -1,7 +1,11 @@
 import customtkinter
 import random
+from database import Database
+
 customtkinter.set_appearance_mode("light")
 customtkinter.set_default_color_theme("dark-blue")
+
+Database.dbconnect()
 
 class Game(customtkinter.CTk):
     def __init__(self):
