@@ -1,13 +1,9 @@
 import customtkinter
 import random
-
-from database import Database
+from PIL import Image
 
 customtkinter.set_appearance_mode("light")
-from PIL import Image
 customtkinter.set_default_color_theme("dark-blue")
-
-Database.dbconnect()
 
 class MainMenu(customtkinter.CTkFrame):
     def __init__(self, master, start_callback):
@@ -16,7 +12,7 @@ class MainMenu(customtkinter.CTkFrame):
         master.grid_rowconfigure(0, weight=1)
         master.grid_columnconfigure(0, weight=1)
 
-        title = customtkinter.CTkLabel(self, text="Schnick Schnack Schnuck", font=("Arial", 32, "bold"))
+        title = customtkinter.CTkLabel(self, text="Schere Stein Papier", font=("Arial", 32, "bold"))
         title.pack(pady=(80, 40))
 
         start_btn = customtkinter.CTkButton(self, text="Spiel starten", font=("Arial", 20), width=200, height=60, command=start_callback)
@@ -43,21 +39,24 @@ class Game(customtkinter.CTkFrame):
         self.center_frame.grid_columnconfigure((0,1,2), weight=1)
         self.center_frame.configure(fg_color="#dbdbdb")
 
-        self.label = customtkinter.CTkLabel(self.center_frame, text="Schnick Schnack Schnuck", font=("Arial", 28, "bold"))
+        self.label = customtkinter.CTkLabel(self.center_frame, text="Schere Stein Papier", font=("Arial", 28, "bold"))
         self.label.grid(row=0, column=0, columnspan=3, pady=(10, 20), sticky="n")
 
-        self.label2 = customtkinter.CTkLabel(self.main_frame, text="Wähle deine Option:", font=("Arial", 18))
-        self.label2.grid(row=1, column=0, columnspan=3, pady=10, sticky="n")
+        # Spielerwahl-Bild
+        self.player_label = customtkinter.CTkLabel(self.center_frame, text="")
+        self.player_label.grid(row=2, column=0, pady=10, sticky="n")
 
-        self.label3 = customtkinter.CTkLabel(self.center_frame, text="", font=("Arial", 16))
-        self.label3.grid(row=2, column=0, columnspan=3, pady=10, sticky="n")
+        # Info-Label (Mitte)
+        self.info_label = customtkinter.CTkLabel(self.center_frame, text="", font=("Arial", 16))
+        self.info_label.grid(row=2, column=1, pady=10, sticky="n")
 
-        self.img_scissors = customtkinter.CTkImage(light_image=Image.open("images/schere-cartoon.png"), size=(32, 32))
-        self.img_rock = customtkinter.CTkImage(light_image=Image.open("images/stein-cartoon.png"), size=(32, 32))
-        self.img_paper = customtkinter.CTkImage(light_image=Image.open("images/papier-cartoon.png"), size=(32, 32))
-
+        # KI-Wahl-Bild
         self.ai_label = customtkinter.CTkLabel(self.center_frame, text="")
-        self.ai_label.grid(row=1, column=1, pady=10, sticky="n")
+        self.ai_label.grid(row=2, column=2, pady=10, sticky="n")
+
+        self.img_scissors = customtkinter.CTkImage(light_image=Image.open("images/schere-cartoon.png"), size=(50, 50))
+        self.img_rock = customtkinter.CTkImage(light_image=Image.open("images/stein-cartoon.png"), size=(50, 50))
+        self.img_paper = customtkinter.CTkImage(light_image=Image.open("images/papier-cartoon.png"), size=(50, 50))
 
         self.scissorsBtn = customtkinter.CTkButton(
             self.center_frame, text="", image=self.img_scissors, width=150, height=150, font=("Arial", 16),
@@ -79,9 +78,22 @@ class Game(customtkinter.CTkFrame):
         self.backBtn = customtkinter.CTkButton(self.center_frame, text="Zurück zum Hauptmenü", command=self.back_callback)
         self.backBtn.grid(row=4, column=0, columnspan=3, pady=(10, 20))
 
+        self.default_fg_color = "#dbdbdb"
+
     def on_button_click(self, choice):
-        self.label2.configure(text=f"Du hast gewählt: {choice}")
-        self.ai_choice(choice)
+        # Spielerwahl anzeigen
+        self.show_player_choice(choice)
+        self.info_label.configure(text="...")
+        self.after(500, lambda: self.ai_choice(choice))
+
+    def show_player_choice(self, choice):
+        if choice == "Schere":
+            img = self.img_scissors
+        elif choice == "Stein":
+            img = self.img_rock
+        else:
+            img = self.img_paper
+        self.player_label.configure(image=img, text="")
 
     def ai_choice(self, choice):
         options = ["Schere", "Stein", "Papier"]
@@ -93,32 +105,30 @@ class Game(customtkinter.CTkFrame):
         else:
             ai_img = self.img_paper
 
-        if hasattr(self, "ai_label"):
-            self.ai_label.destroy()
-        self.ai_label = customtkinter.CTkLabel(self.center_frame, text="", image=ai_img)
-        self.ai_label.grid(row=1, column=1, pady=10, sticky="n")
+        self.ai_label.configure(image=ai_img, text="")
 
-        self.label3.grid(row=2, column=0, pady=10, sticky="n")
-        self.label3.configure(image=self.label3.cget("image"))
-
+        # Ergebnis bestimmen
         if (choice == "Schere" and ai_choice == "Papier") or \
            (choice == "Stein" and ai_choice == "Schere") or \
            (choice == "Papier" and ai_choice == "Stein"):
-            self.label2.configure(text="Du hast gewonnen!")
+            self.show_result("win")
         elif choice == ai_choice:
-            self.label2.configure(text="Unentschieden!")
+            self.show_result("draw")
         else:
             self.show_result("lose")
 
     def show_result(self, result):
         color = {"win": "#aaffaa", "draw": "#ffffaa", "lose": "#ffaaaa"}[result]
+        text = {"win": "🎉 Sieg!", "draw": "🤝 Unentschieden!", "lose": "😢 Verloren!"}[result]
         self.center_frame.configure(fg_color=color)
-        self.after(800, lambda: self.center_frame.configure(fg_color="#dbdbdb"))
+        self.info_label.configure(text=text)
+        self.after(800, lambda: self.center_frame.configure(fg_color=self.default_fg_color))
+        self.after(1200, lambda: self.info_label.configure(text=""))
 
 class App(customtkinter.CTk):
     def __init__(self):
         super().__init__()
-        self.title("Schnick Schnack Schnuck")
+        self.title("Schere Stein Papier")
         self.geometry("800x600")
         self.resizable(True, True)
         self.show_main_menu()
