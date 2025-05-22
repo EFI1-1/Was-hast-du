@@ -30,6 +30,17 @@ class Game(customtkinter.CTkFrame):
 
         self.back_callback = back_callback
 
+class Game(customtkinter.CTk):
+    def __init__(self):
+        super().__init__()
+        self.title("Schnick Schnack Schnuck")
+        self.geometry("800x500")
+        self.resizable(False, False)
+
+        # Grid configuration
+        self.grid_rowconfigure((0, 1, 2, 3, 4), weight=1)
+        self.grid_columnconfigure((0, 1, 2), weight=1)
+
         # Frame für zentrierten Inhalt
         self.center_frame = customtkinter.CTkFrame(self)
         self.center_frame.grid(row=0, column=0, sticky="nsew")
@@ -144,6 +155,8 @@ class App(customtkinter.CTk):
     def clear_widgets(self):
         for widget in self.winfo_children():
             widget.destroy()
+
+        Database.db_insert(choice, ai_choice, self.label2._text)
 
 if __name__ == "__main__":
     app = App()
