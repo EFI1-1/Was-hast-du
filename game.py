@@ -6,8 +6,6 @@ from database import Database
 customtkinter.set_appearance_mode("light")
 customtkinter.set_default_color_theme("dark-blue")
 
-Database.dbconnect()
-
 class Game(customtkinter.CTk):
     def __init__(self):
         super().__init__()
@@ -59,6 +57,8 @@ class Game(customtkinter.CTk):
             self.label2.configure(text="Unentschieden!")
         else:
             self.label2.configure(text="Die KI hat gewonnen!")
+
+        Database.db_insert(choice, ai_choice, self.label2._text)
 
 if __name__ == "__main__":
     app = Game()
