@@ -1,8 +1,13 @@
 import customtkinter
 import random
+
+from database import Database
+
+customtkinter.set_appearance_mode("light")
 from PIL import Image
 customtkinter.set_default_color_theme("dark-blue")
-customtkinter.set_appearance_mode("light")
+
+Database.dbconnect()
 
 class MainMenu(customtkinter.CTkFrame):
     def __init__(self, master, start_callback):
@@ -41,6 +46,9 @@ class Game(customtkinter.CTkFrame):
         self.label = customtkinter.CTkLabel(self.center_frame, text="Schnick Schnack Schnuck", font=("Arial", 28, "bold"))
         self.label.grid(row=0, column=0, columnspan=3, pady=(10, 20), sticky="n")
 
+        self.label2 = customtkinter.CTkLabel(self.main_frame, text="Wähle deine Option:", font=("Arial", 18))
+        self.label2.grid(row=1, column=0, columnspan=3, pady=10, sticky="n")
+
         self.label3 = customtkinter.CTkLabel(self.center_frame, text="", font=("Arial", 16))
         self.label3.grid(row=2, column=0, columnspan=3, pady=10, sticky="n")
 
@@ -72,17 +80,8 @@ class Game(customtkinter.CTkFrame):
         self.backBtn.grid(row=4, column=0, columnspan=3, pady=(10, 20))
 
     def on_button_click(self, choice):
-        self.show_choice(choice)
-        self.after(500, lambda: self.ai_choice(choice))
-
-    def show_choice(self, choice):
-        if choice == "Schere":
-            img = self.img_scissors
-        elif choice == "Stein":
-            img = self.img_rock
-        else:
-            img = self.img_paper
-        self.label3.configure(text="", image=img)
+        self.label2.configure(text=f"Du hast gewählt: {choice}")
+        self.ai_choice(choice)
 
     def ai_choice(self, choice):
         options = ["Schere", "Stein", "Papier"]
@@ -105,9 +104,9 @@ class Game(customtkinter.CTkFrame):
         if (choice == "Schere" and ai_choice == "Papier") or \
            (choice == "Stein" and ai_choice == "Schere") or \
            (choice == "Papier" and ai_choice == "Stein"):
-            self.show_result("win")
+            self.label2.configure(text="Du hast gewonnen!")
         elif choice == ai_choice:
-            self.show_result("draw")
+            self.label2.configure(text="Unentschieden!")
         else:
             self.show_result("lose")
 

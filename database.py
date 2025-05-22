@@ -1,9 +1,14 @@
 import mysql.connector
 
-db = mysql.connector.connect(
-  host="PKG-MDO",
-  user="marcel",
-  password="passwort",
-  database="game"
-)
+
+class Database:
+  @staticmethod
+  def dbconnect():
+    return  mysql.connector.connect(
+      host="PKG-MDO",
+      user="marcel",
+      password="passwort",
+      database="game"
+    )
+
 
