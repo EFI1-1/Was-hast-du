@@ -2,7 +2,7 @@ import customtkinter
 customtkinter.set_appearance_mode("light")
 customtkinter.set_default_color_theme("dark-blue")
 
-class Wetter(customtkinter.CTk):
+class Game(customtkinter.CTk):
     def __init__(self):
         super().__init__()
         self.title("Schnick Schnack Schnuck")
@@ -20,5 +20,5 @@ class Wetter(customtkinter.CTk):
 
 
 if __name__ == "__main__":
-    app = Wetter()
+    app = Game()
     app.mainloop()
