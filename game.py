@@ -31,7 +31,6 @@ class Game(customtkinter.CTkFrame):
 
         self.back_callback = back_callback
 
-        # Center-Frame ebenfalls über das ganze Game-Frame strecken
         self.center_frame = customtkinter.CTkFrame(self)
         self.center_frame.grid(row=0, column=0, sticky="nsew")
         self.grid_rowconfigure(0, weight=1)
@@ -55,20 +54,20 @@ class Game(customtkinter.CTkFrame):
         self.ai_label = customtkinter.CTkLabel(self.center_frame, text="")
         self.ai_label.grid(row=2, column=2, pady=10, sticky="n")
 
-        self.img_scissors = customtkinter.CTkImage(light_image=Image.open("images/schere-cartoon.png"), size=(50, 50))
-        self.img_rock = customtkinter.CTkImage(light_image=Image.open("images/stein-cartoon.png"), size=(50, 50))
-        self.img_paper = customtkinter.CTkImage(light_image=Image.open("images/papier-cartoon.png"), size=(50, 50))
+        self.img_scissors = customtkinter.CTkImage(light_image=Image.open("images/Schere.png"), size=(150, 170))
+        self.img_rock = customtkinter.CTkImage(light_image=Image.open("images/Stein.png"), size=(150, 170))
+        self.img_paper = customtkinter.CTkImage(light_image=Image.open("images/Papier.png"), size=(150, 170))
 
         self.scissorsBtn = customtkinter.CTkButton(
-            self.center_frame, text="", image=self.img_scissors, width=150, height=150, font=("Arial", 16),
+            self.center_frame, text="", image=self.img_scissors, width=150, height=150, font=("Arial", 16), fg_color="transparent", hover_color="white",
             command=lambda: self.on_button_click("Schere")
         )
         self.rockBtn = customtkinter.CTkButton(
-            self.center_frame, text="", image=self.img_rock, width=150, height=150, font=("Arial", 16),
+            self.center_frame, text="", image=self.img_rock, width=150, height=150, font=("Arial", 16), fg_color="transparent", hover_color="white",
             command=lambda: self.on_button_click("Stein")
         )
         self.paperBtn = customtkinter.CTkButton(
-            self.center_frame, text="", image=self.img_paper, width=150, height=150, font=("Arial", 16),
+            self.center_frame, text="", image=self.img_paper, width=150, height=150, font=("Arial", 16), fg_color="transparent", hover_color="white",
             command=lambda: self.on_button_click("Papier")
         )
 
@@ -119,12 +118,36 @@ class Game(customtkinter.CTkFrame):
             self.show_result("lose")
 
     def show_result(self, result):
-        color = {"win": "#aaffaa", "draw": "#ffffaa", "lose": "#ffaaaa"}[result]
-        text = {"win": "🎉 Sieg!", "draw": "🤝 Unentschieden!", "lose": "😢 Verloren!"}[result]
-        self.center_frame.configure(fg_color=color)
+        # Ziel-Farbe bestimmen
+        target_color = {"win": "#aaffaa", "draw": "#ffffaa", "lose": "#ffaaaa"}[result]
+        text = {"win": "Sieg!", "draw": "Unentschieden!", "lose": "Verloren!"}[result]
         self.info_label.configure(text=text)
-        self.after(800, lambda: self.center_frame.configure(fg_color=self.default_fg_color))
+        self.animate_bg(self.center_frame.cget("fg_color"), target_color, steps=20, delay=20)
+        self.after(500, lambda: self.animate_bg(self.center_frame.cget("fg_color"), self.default_fg_color, steps=20, delay=20))
         self.after(1200, lambda: self.info_label.configure(text=""))
+
+    def animate_bg(self, start, end, steps=10, delay=20):
+        # Hilfsfunktion: hex -> rgb
+        def hex2rgb(hexcolor):
+            hexcolor = hexcolor.lstrip("#")
+            return tuple(int(hexcolor[i:i+2], 16) for i in (0, 2, 4))
+        # Hilfsfunktion: rgb -> hex
+        def rgb2hex(rgb):
+            return "#%02x%02x%02x" % rgb
+
+        start_rgb = hex2rgb(start)
+        end_rgb = hex2rgb(end)
+        diff = [end_rgb[i] - start_rgb[i] for i in range(3)]
+
+        def step(i):
+            if i > steps:
+                self.center_frame.configure(fg_color=end)
+                return
+            new_rgb = tuple(int(start_rgb[j] + diff[j] * i / steps) for j in range(3))
+            self.center_frame.configure(fg_color=rgb2hex(new_rgb))
+            self.after(delay, lambda: step(i+1))
+
+        step(0)
 
 class App(customtkinter.CTk):
     def __init__(self):
