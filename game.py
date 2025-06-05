@@ -1,6 +1,7 @@
 import customtkinter
 import random
 from PIL import Image
+from database import Database
 
 customtkinter.set_appearance_mode("light")
 customtkinter.set_default_color_theme("dark-blue")
@@ -199,7 +200,7 @@ class App(customtkinter.CTk):
         for widget in self.winfo_children():
             widget.destroy()
 
-        #Database.db_insert(choice, ai_choice, self.label2._text)
+Database.db_insert(choice, ai_choice)
 
 if __name__ == "__main__":
     app = App()
