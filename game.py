@@ -24,24 +24,14 @@ class MainMenu(customtkinter.CTkFrame):
 class Game(customtkinter.CTkFrame):
     def __init__(self, master, back_callback):
         super().__init__(master)
+        # Game-Frame über das ganze Fenster strecken
         self.grid(row=0, column=0, sticky="nsew")
         master.grid_rowconfigure(0, weight=1)
         master.grid_columnconfigure(0, weight=1)
 
         self.back_callback = back_callback
 
-class Game(customtkinter.CTk):
-    def __init__(self):
-        super().__init__()
-        self.title("Schnick Schnack Schnuck")
-        self.geometry("800x500")
-        self.resizable(False, False)
-
-        # Grid configuration
-        self.grid_rowconfigure((0, 1, 2, 3, 4), weight=1)
-        self.grid_columnconfigure((0, 1, 2), weight=1)
-
-        # Frame für zentrierten Inhalt
+        # Center-Frame ebenfalls über das ganze Game-Frame strecken
         self.center_frame = customtkinter.CTkFrame(self)
         self.center_frame.grid(row=0, column=0, sticky="nsew")
         self.grid_rowconfigure(0, weight=1)
@@ -156,7 +146,7 @@ class App(customtkinter.CTk):
         for widget in self.winfo_children():
             widget.destroy()
 
-        Database.db_insert(choice, ai_choice, self.label2._text)
+        #Database.db_insert(choice, ai_choice, self.label2._text)
 
 if __name__ == "__main__":
     app = App()
