@@ -80,8 +80,17 @@ class Game(customtkinter.CTkFrame):
 
         self.default_fg_color = "#dbdbdb"
 
+        # Best-of-3 Zähler
+        self.player_score = 0
+        self.ai_score = 0
+        self.rounds = 0
+
+        self.score_label = customtkinter.CTkLabel(self.center_frame, text="Spieler: 0  |  KI: 0", font=("Arial", 18, "bold"))
+        self.score_label.grid(row=1, column=0, columnspan=3, pady=(0, 10))
+
     def on_button_click(self, choice):
-        # Spielerwahl anzeigen
+        if self.player_score == 3 or self.ai_score == 3:
+            return  # Keine weiteren Züge nach Spielende
         self.show_player_choice(choice)
         self.info_label.configure(text="...")
         self.after(500, lambda: self.ai_choice(choice))
@@ -111,11 +120,32 @@ class Game(customtkinter.CTkFrame):
         if (choice == "Schere" and ai_choice == "Papier") or \
            (choice == "Stein" and ai_choice == "Schere") or \
            (choice == "Papier" and ai_choice == "Stein"):
-            self.show_result("win")
+            self.player_score += 1
+            result = "win"
         elif choice == ai_choice:
-            self.show_result("draw")
+            result = "draw"
         else:
-            self.show_result("lose")
+            self.ai_score += 1
+            result = "lose"
+
+        self.rounds += 1
+        self.score_label.configure(text=f"Spieler: {self.player_score}  |  KI: {self.ai_score}")
+
+        self.show_result(result)
+
+        # Wer zuerst 3 Punkte hat, gewinnt sofort
+        if self.player_score == 3 or self.ai_score == 3:
+            self.after(1800, self.show_final_result)
+
+    def show_final_result(self):
+        if self.player_score > self.ai_score:
+            msg = "Du hast das Best-of-3 gewonnen! 🎉"
+        elif self.player_score < self.ai_score:
+            msg = "Die KI hat das Best-of-3 gewonnen! 😢"
+        else:
+            msg = "Unentschieden im Best-of-3!"
+        self.info_label.configure(text=msg)
+        self.after(2500, self.back_callback)
 
     def show_result(self, result):
         # Ziel-Farbe bestimmen
